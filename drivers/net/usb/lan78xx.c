@@ -3709,6 +3709,17 @@ static int lan78xx_probe(struct usb_interface *intf,
 		}
 	}
 
+	buf = kmalloc(maxp, GFP_KERNEL);
+	if (!buf) {
+		ret = -ENOMEM;
+		goto free_urbs;
+	}
+
+	usb_fill_int_urb(dev->urb_intr, dev->udev,
+			 dev->pipe_intr, buf, maxp,
+			 intr_complete, dev, period);
+	dev->urb_intr->transfer_flags |= URB_FREE_BUFFER;
+
 	dev->maxpacket = usb_maxpacket(dev->udev, dev->pipe_out, 1);
 
 	/* Reject broken descriptors. */
